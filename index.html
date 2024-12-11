@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>CS 180 Project 5</title>
+        <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@600&family=Montserrat&display=swap" rel="stylesheet">        <meta charset="utf-8">
+        
+
+    <style>
+        body {
+            font-family: 'Montserrat';
+        }
+
+        p {
+            margin-left: 30px;
+            margin-right: 30px;
+            text-align: center;
+        }
+
+        figcaption {
+            text-align: center;
+            margin-left: -20px;
+            margin-right: -20px;
+        }
+
+        figure {
+            display: inline-block;
+        }
+
+        #title {
+            text-align: center;
+            font-size: 70px;
+            font-family: 'Kanit';
+            margin-bottom: -24px;
+        }
+
+        #subtitle {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+
+        #hugesection {
+            font-family: 'Kanit';
+            font-size: 70px;
+            text-align: center;
+            background-color: rgba(228, 104, 92, 0.2);
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+
+        #section {
+            font-family: 'Kanit';
+            text-align: center;
+            background-color: rgb(50, 170, 50, 0.2);
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        #subsection {
+            font-family: 'Montserrat';
+            text-align: center;
+            background-color: rgb(50, 150, 250, 0.2);
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        #mag_small {
+            width: 160px;
+            height: 160px;
+            margin-left: 10px;
+            margin-right: 10px;
+            display: inline-block;
+        }
+
+        #big_centered {
+            width: 320px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #margin_placeholder {
+            margin-left: calc(50% - 510px);
+        }
+    </style>
+    </head>
+    <body>
+        <h1 id="title">CS 180 FINAL PROJECT</h1>
+        <h1 id="subtitle">Xavier Plourde</div>
+        <h1 id="hugesection">Project 1 - Image Quilting</h1>
+        <h1 id="section">Project Overview</h1>
+        <p>This project involved using various algorithms to create larger images based on small image textures, and to imitate a guidance image based on pixel values of an texture image.</p>
+        <p>The goal was to generate large images that contained little artifacts or errors, and looked as smooth and like real images as possible. I tried this with several different algorithms, with varying results.</p>
+        <h1 id="section">Part 1 - Randomly Sampled Textures</h1>
+        <h2 id="subsection">Overview</h2>
+        <p>For this section, I tiled a large image by simply sampling patches of a texture completely at random. As one would expect, this did not produce very good results, and serves as a baseline for more intelligent later methods used.</p>
+        <h2 id="subsection">Results</h2>
+        <figure style="margin-left: calc(50% - 200px)">
+            <img width=400 src="web_imgs/1.1.png">
+            <figcaption><em>Brick wall image, tiled with random sampling</em></figcaption>
+        </figure>
+        <h1 id="section">Part 2 - Overlapping Patches</h1>
+        <h2 id="subsection">Overview</h2>
+        <p>Next, I tried a more sophisticated approach to add texture patches with a small overlap, and instead of choosing random patches from the texture image, I chose among the patches that had the least error when matched with the pixels that were already in place on the output image.</p>
+        <p>Specifically, when choosing a patch to add, I took the SSD error of the patch and the existing pixels in the output image where the patch was to be added (many would be zero, but some are nonzero due to the overlapping patches). After finding these errors, I chose the patch randomly among the T patches with the lowest error. For the results shown here, I used T=3, which I found to be a good balance between choosing good errors, but also not always choosing the same thing.</p>
+        <h2 id="subsection">Results</h2>
+        <figure style="margin-left: calc(50% - 200px)">
+            <img width=400 src="web_imgs/1.2.png">
+            <figcaption><em>Brick wall image, tiled with lowest-SSD-error tiling</em></figcaption>
+        </figure>
+        <h1 id="section">Part 3 - Seam Finding</h1>
+        <h2 id="subsection">Overview</h2>
+        <p>After improving upon the baseline with the overlapping patches approach, I tried a more advanced approach to tiling the image using texture patches. Specifically, whenever I added a new patch to the output image, instead of simply overriding the overlapping part of the patch with the new texture, I "cut" the overlapping part by using a dynamic programming algorithm to determine the optimal place to cut to make a smooth transition between the patch and the previous patch. This improved on the previous results and made for a much smoother image than that of the simple overlapping patches approach.</p>
+        <h2 id="subsection">Results</h2>
+        <figure style="margin-left: calc(50% - 200px)">
+            <img width=400 src="web_imgs/1.3.png">
+            <figcaption><em>Brick wall image, tiled with lowest-SSD-error tiling and seam finding</em></figcaption>
+        </figure>
+        <h1 id="section">Part 4 - Texture Transfer</h1>
+        <h2 id="subsection">Overview</h2>
+        <p>After using the seam finding algorithm to tile an image with low errors from pixels to their neighbors, I applied this algorithm to a more advanced task, texture transfer.</p>
+        <p>Instead of simply enlarging an original texture image, I used the algorithm to tile an image with the texture image with the goal of it taking the shape of a different "guidance image". To do this, I modified the original algorithm to also consider the error between the new patch and the corresponding place in the guidance image, and use a parameter alpha to decide how much to weight this new error compared to the original error between the new patch and the previous patch it overlapped with.</p>
+        <p>This produced convincing results for several examples shown below: both of the examples attempt to make the shape of Richard Feynman's face, with one being tiled with an image of squiggly lines, and the other being tiled with an image of white clouds.</p>
+        <p>Placeholder</p>
+        <h2 id="subsection">Results</h2>
+        <figure style="margin-left: calc(50% - 600px)">
+            <img width=300 src="samples/sketch.png">
+            <figcaption><em>Squiggly lines image<br></em></figcaption>
+        </figure>
+        <figure>
+            <img width=300 src="samples/feynman.png">
+            <figcaption><em>Richard Feynman image<br></em></figcaption>
+        </figure>
+        <figure>
+            <img width=300 src="web_imgs/1.4.1.png">
+            <figcaption><em>Squiggly lines image textures<br>tiled to look like Richard Feynman</em></figcaption>
+        </figure>
+        <br>
+        <figure style="margin-left: calc(50% - 600px)">
+            <img width=300 src="samples/white_small.jpg">
+            <figcaption><em>White clouds image<br></em></figcaption>
+        </figure>
+        <figure>
+            <img width=300 src="samples/feynman.png">
+            <figcaption><em>Richard Feynman image<br></em></figcaption>
+        </figure>
+        <figure>
+            <img width=300 src="web_imgs/1.4.1.png">
+            <figcaption><em>Cloud image textures<br>tiled to look like Richard Feynman</em></figcaption>
+        </figure>
+        <h1 id="section">Bells and Whistles - Iterative Texture Transfer</h1>
+        <h2 id="subsection">Overview</h2>
+        <p>To improve on the texture transfer, I applied the iterative method discussed in the paper by Prof. Efros. Specifically, instead of doing a single tiling of the image, I did N tilings, where N=3 for this project, and for each tiling, I decrease the patch size, and compute the error between the image and the texture of the previous iteration, instead of just the overlap region. I also decrease alpha with each iteration, to make each iteration more and more similar to the guidance image. This gave more convincing examples for both of the tilings shown previously.</p>
+        <h2 id="subsection">Results</h2>
+        <figure style="margin-left: calc(50% - 400px)">
+            <img width=300 src="web_imgs/1.4.2.png">
+            <figcaption><em>Squiggly line image textures<br>tiled to look like<br>Richard Feynman</em></figcaption>
+        </figure>
+        <figure>
+            <img width=300 src="web_imgs/1.5.2.png">
+            <figcaption><em>Squiggly line image textures<br>tiled to look like Richard Feynman<br>(non-iterative)</em></figcaption>
+        </figure>
+        <br>
+        <br>
+        <figure style="margin-left: calc(50% - 400px)">
+            <img width=300 src="web_imgs/1.4.1.png">
+            <figcaption><em>Cloud image textures<br>tiled to look like Richard Feynman<br>(non-iterative)</em></figcaption>
+        </figure>
+        <figure>
+            <img width=300 src="web_imgs/1.5.1.png">
+            <figcaption><em>Cloud image textures<br>tiled to look like Richard Feynman<br>(iterative)</em></figcaption>
+        </figure>
+        <h1 id="section">Conclusion</h1>
+        <p>Overall, I learned a lot from this project and the relevant paper about how image textures and texture transfer works. I had a lot of fun making the images, especially the images for texture transfer in part 4, as it was cool to see the results and see how a simple technique could solve a seemingly complex task.</p>
+        <h1 id="hugesection">Project 2 - Light Field Camera</h1>
+        <h1 id="section">Project Overview</h1>
+        <p>This project involved using images generated by a light field camera to simulate both depth refocusing and aperture adjustment. Specifically, I started with a bunch of images of the same object (I chose to use the image of a chessboard), blended the images, and performed various shifting operations to change the focus of the blended image, and to simulate changing the aperture size</p>
+        <h1 id="section">Part 1 - Depth Refocusing</h1>
+        <h2 id="subsection">Overview</h2>
+        <p></p>For this section, I started out by simply averaging all the images together. This caused the upper areas of the image to be in focus, and the lower areas to be blurry. In order to change this, I shifted each image by a certain factor that scaled with the x-position and y-position of the center of the camera (given in the filename for each image). I also used a parameter alpha, where focusing on the top of the image would have alpha=0 (no shift) and focusing on the bottom of the image would have alpha=1 (full shift). Changing alpha to be something between 0 and 1 resulted in a focus in the middle of the image.</p>
+        <p>Shown below is a GIF of changing the focus location: starting at the top of the image and ending at the bottom of the image.</p>
+        <h2 id="subsection">Results</h2>
+        <figure style="margin-left: calc(50% - 200px);" >
+            <img width=400 id="big" src="p2_gifs/gif1.gif">
+            <figcaption><em>Changing focus from bottom to top</em></figcaption>
+        </figure>
+        <h1 id="section">Part 2 - Aperture Adjustment</h1>
+        <h2 id="subsection">Overview</h2>
+        <p>Next, I chose all images with the x position in the center of the image, and averaged them to focus on the center of the image, using the technique described in the previous section. Specifically, I simulated this aperture size increase by starting with only 1 image, and increasing that to 17 images.</p>
+        <p>Shown below is a GIF of changing the simulated aperture size: starting out with just a single image sample, ending with all 17.</p>
+        <h2 id="subsection">Results</h2>
+        <figure style="margin-left: calc(50% - 200px);" >
+            <img width=400 id="big" src="p2_gifs/gif2.gif">
+            <figcaption><em>Changing aperture size by increasing<br>number of images from 1 to all 17</em></figcaption>
+        </figure>
+        <h1 id="section">Conclusion</h1>
+        <p>In this project, the main thing I learned about lightfields is that these lightfield images like the ones used here can be very powerful. Specifically, they can make it possible to do seemingly very advanced things like shifting the focus of an image, just by averaging multiple images together and performing very simple shift operations.</p>
+
+    </body>
+
+    <script>
+    </script>
+</html>
+
